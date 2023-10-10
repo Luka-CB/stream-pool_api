@@ -44,7 +44,7 @@ const addNewContent = asyncHandler(async (req, res) => {
 
   if (!newContent) throw new Error("Create New Content Request has Failed!");
 
-  res.status(200).json({ msg: "Added Successfuly!" });
+  res.status(200).json({ msg: "Added Successfully!" });
 });
 
 // GET MOVIES
@@ -113,13 +113,24 @@ const getMovies = asyncHandler(async (req, res) => {
 
   if (userId) {
     const favs = await Favorite.find({ userId });
+    const ratings = await Rating.find({ user: userId });
 
     const modifiedMovies = movies.docs.map((doc) => {
       const isInFav = favs.some(
         (fav) => fav.contentId.toString() === doc._id.toString()
       );
 
-      return { ...doc._doc, isInFavorite: isInFav };
+      const ratedUserVal = ratings.find(
+        (rating) => rating.content.toString() === doc._id.toString()
+      );
+
+      return {
+        ...doc._doc,
+        isInFavorite: isInFav,
+        userRating: ratedUserVal
+          ? { _id: ratedUserVal._id, value: ratedUserVal.value }
+          : { _id: "", value: null },
+      };
     });
 
     content = {
@@ -178,7 +189,7 @@ const getTvs = asyncHandler(async (req, res) => {
   const options = {
     sort: sortVal,
     page: page || 1,
-    limit: 12,
+    limit: 20,
   };
 
   const count = await Content.countDocuments({ type: "tv", ...keyword });
@@ -202,13 +213,24 @@ const getTvs = asyncHandler(async (req, res) => {
 
   if (userId) {
     const favs = await Favorite.find({ userId });
+    const ratings = await Rating.find({ user: userId });
 
     const modifiedTvs = tvs.docs.map((doc) => {
       const isInFav = favs.some(
         (fav) => fav.contentId.toString() === doc._id.toString()
       );
 
-      return { ...doc._doc, isInFavorite: isInFav };
+      const ratedUserVal = ratings.find(
+        (rating) => rating.content.toString() === doc._id.toString()
+      );
+
+      return {
+        ...doc._doc,
+        isInFavorite: isInFav,
+        userRating: ratedUserVal
+          ? { _id: ratedUserVal._id, value: ratedUserVal.value }
+          : { _id: "", value: null },
+      };
     });
 
     content = {
@@ -651,6 +673,92 @@ const getListItemsBySearch = asyncHandler(async (req, res) => {
   res.status(200).json(content);
 });
 
+// GET LATEST TV SERIES
+// ROUTE - GET - /api/content/tvs/latest
+// PUBLIC
+const getLatestTvs = asyncHandler(async (req, res) => {
+  const { userId } = req.query;
+
+  const tvs = await Content.find({ type: "tv" })
+    .limit(15)
+    .sort({ createdAt: "desc" });
+  if (!tvs) throw new Error("Get latest tvs request has failed!");
+
+  let content;
+
+  if (userId) {
+    const favs = await Favorite.find({ userId });
+    const ratings = await Rating.find({ user: userId });
+
+    const modifiedTvs = tvs.map((tv) => {
+      const isInFav = favs.some(
+        (fav) => fav.contentId.toString() === tv._id.toString()
+      );
+
+      const ratedUserVal = ratings.find(
+        (rating) => rating.content.toString() === tv._id.toString()
+      );
+
+      return {
+        ...tv._doc,
+        isInFavorite: isInFav,
+        userRating: ratedUserVal
+          ? { _id: ratedUserVal._id, value: ratedUserVal.value }
+          : { _id: "", value: null },
+      };
+    });
+
+    content = modifiedTvs;
+  } else {
+    content = tvs;
+  }
+
+  res.status(200).json(content);
+});
+
+// GET LATEST MOVIES
+// ROUTE - GET - /api/content/movies/latest
+// PUBLIC
+const getLatestMovies = asyncHandler(async (req, res) => {
+  const { userId } = req.query;
+
+  const movies = await Content.find({ type: "movie" })
+    .limit(15)
+    .sort({ createdAt: "desc" });
+  if (!movies) throw new Error("Get latest movies request has failed!");
+
+  let content;
+
+  if (userId) {
+    const favs = await Favorite.find({ userId });
+    const ratings = await Rating.find({ user: userId });
+
+    const modifiedMovies = movies.map((movie) => {
+      const isInFav = favs.some(
+        (fav) => fav.contentId.toString() === movie._id.toString()
+      );
+
+      const ratedUserVal = ratings.find(
+        (rating) => rating.content.toString() === movie._id.toString()
+      );
+
+      return {
+        ...movie._doc,
+        isInFavorite: isInFav,
+        userRating: ratedUserVal
+          ? { _id: ratedUserVal._id, value: ratedUserVal.value }
+          : { _id: "", value: null },
+      };
+    });
+
+    content = modifiedMovies;
+  } else {
+    content = movies;
+  }
+
+  res.status(200).json(content);
+});
+
 module.exports = {
   addNewContent,
   getMovies,
@@ -667,4 +775,6 @@ module.exports = {
   getAllFavContent,
   getListItems,
   getListItemsBySearch,
+  getLatestTvs,
+  getLatestMovies,
 };

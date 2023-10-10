@@ -15,6 +15,8 @@ const {
   getAllFavContent,
   getListItems,
   getListItemsBySearch,
+  getLatestTvs,
+  getLatestMovies,
 } = require("../controllers/content");
 const { auth, admin } = require("../middlewares/auth");
 
@@ -24,6 +26,8 @@ router.route("/").post(auth, admin, addNewContent);
 router.route("/search").get(getContentBySearch);
 router.route("/movies").get(getMovies);
 router.route("/tvs").get(getTvs);
+router.route("/tvs/latest").get(getLatestTvs);
+router.route("/movies/latest").get(getLatestMovies);
 router.route("/update_url").put(auth, admin, updateVideoUrl);
 router.route("/update_poster").put(auth, admin, updatePoster);
 router.route("/fetch-one").get(getSingleContent);
