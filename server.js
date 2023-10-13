@@ -15,7 +15,7 @@ app.use(express.json({ limit: "25mb" }));
 
 app.use(
   cors({
-    origin: "http://localhost:8080",
+    origin: ["http://localhost:8080", "https://stream-pool.vercel.app"],
     credentials: true,
   })
 );
