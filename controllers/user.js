@@ -33,9 +33,9 @@ const register = asyncHandler(async (req, res) => {
     "Set-Cookie",
     cookie.serialize("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== "development",
       maxAge: 60 * 60 * 24 * 7 * 30,
-      sameSite: "strict",
+      sameSite: "none",
+      secure: true,
       path: "/",
     })
   );
@@ -65,9 +65,9 @@ const login = asyncHandler(async (req, res) => {
     "Set-Cookie",
     cookie.serialize("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== "development",
       maxAge: 60 * 60 * 24 * 7 * 30,
-      sameSite: "strict",
+      sameSite: "none",
+      secure: true,
       path: "/",
     })
   );
@@ -100,9 +100,9 @@ const logout = (req, res) => {
     "Set-Cookie",
     cookie.serialize("token", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== "development",
       expires: new Date(0),
-      sameSite: "strict",
+      sameSite: "none",
+      secure: true,
       path: "/",
     })
   );
@@ -173,9 +173,9 @@ const deleteUser = asyncHandler(async (req, res) => {
     "Set-Cookie",
     cookie.serialize("token", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== "development",
       expires: new Date(0),
-      sameSite: "strict",
+      sameSite: "none",
+      secure: true,
       path: "/",
     })
   );
