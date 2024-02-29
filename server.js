@@ -35,6 +35,8 @@ app.use("/api/reply", require("./routes/replyRoutes"));
 app.use(notFound);
 app.use(errorHandler);
 
+setInterval(() => console.log("keep server alive"), 600000);
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(
